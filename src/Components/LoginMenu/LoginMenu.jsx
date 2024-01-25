@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import Select, { components } from "react-select";
 import logo from "../../img/logo.svg";
 import { useNavigate } from "react-router-dom";
 
@@ -38,12 +37,6 @@ const LoginImg = {
   padding: 0,
 };
 
-const HalfImg = {
-  display: "flex",
-  width: `${240 / 19.2}vw`,
-  margin: `0 0 0 0`,
-  padding: 0,
-};
 
 const EmailWrapper = styled.div`
   display: flex;
@@ -68,10 +61,7 @@ const SaveWrapper = styled.div`
   width: 100%;
   font-size: ${14 / 19.2}vw;
   margin: ${1 / 19.2}vw 0 ${18 / 19.2}vw 0;
-`;
-
-const SaveButton = styled.input`
-  margin: 0 ${10 / 19.2}vw 0 ${6 / 19.2}vw;
+  padding: 0 0 0 ${6 / 19.2}vw;
 `;
 
 const FindLink = styled.div`
@@ -114,6 +104,69 @@ const ExtraButton = styled.div`
   padding: 0;
 `;
 
+const EmailSaveLabel = styled.label`
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  user-select: none;
+  padding: 0;
+  margin: 0 0 ${((e) => e.$interval / 19.2)}vw 0;
+
+  &:before {
+    content: "";
+    height: ${23 / 19.2}vw;
+    width: ${23 / 19.2}vw;
+    border: ${1 / 19.2}vw solid #9C9C9C;
+    border-radius: ${2 / 19.2}vw;
+    background-size: ${11 / 19.2}vw ${8 / 19.2}vw;
+    background-position: 50%;
+    background-repeat: no-repeat;
+    background-color: transparent;
+    /* Add the SVG checkmark as a background image */
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1 5.8L4.14286 9L12 1" stroke="%239C9C9C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>');
+  }
+
+  &:after {
+    opacity: 0;
+    content: "";
+    position: absolute;
+    height: ${23 / 19.2}vw;
+    width: ${23 / 19.2}vw;
+    border: ${1 / 19.2}vw solid transparent;
+    border-radius: ${2 / 19.2}vw;
+    background-size: ${11 / 19.2}vw ${8 / 19.2}vw;
+    background-position: 50%;
+    background-repeat: no-repeat;
+    background-color: #F0C920;
+    /* Add the SVG checkmark as a background image */
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1 5.8L4.14286 9L12 1" stroke="%23FFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>');
+  }
+`;
+
+const EmailSaveInput = styled.input`
+  position: absolute;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  height: 1px;
+  overflow: hidden;
+  white-space: nowrap;
+  width: 1px;
+
+  &:checked + ${EmailSaveLabel} {
+    &:after {
+      opacity: 1;
+    }
+  }
+`;
+
+const EmailSaveDiv = styled.div`
+  margin: 0 0 0 ${11 / 19.2}vw;
+  font-size: ${14 / 19.2}vw;
+  white-space: pre-line;
+  text-align: start;
+  color: #202123;
+`;
+
 const badinput = {
   border: `${1.3 / 19.2}vw solid #FD3C56`,
 };
@@ -122,19 +175,13 @@ const LoginMenu = () => {
   const navigate = useNavigate();
   const [Email, SetEmail] = useState("");
   const [Password, SetPassword] = useState("");
+  const [EmailSave, SetEmailSave] = useState(false);
 
   let fn_emailcheck = (email) => {
     var pattern = new RegExp( // 이메일 정규식
       /^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*.[a-zA-Z]{2,3}$/i
     );
     return pattern.test(email);
-  };
-
-  let fn_passwordcheck = (password) => {
-    var pattern = new RegExp( // 비밀번호 정규식
-      /^[A-Za-z0-9`~!@#$%^&*(){}[\]_=+\\|;:'"<>,./?]{5,20}$/
-    );
-    return pattern.test(password);
   };
 
   const EmailChange = (e) => {
@@ -247,8 +294,15 @@ const LoginMenu = () => {
           placeholder="비밀번호"
         />
         <SaveWrapper>
-          <SaveButton type="checkbox" />
-          <div>이메일 저장하기</div>
+          <EmailSaveInput
+          type="checkbox"
+          id="EmailSave"
+          name="EmailSave"
+          checked={EmailSave}
+          onChange={()=>SetEmailSave(EmailSave => !EmailSave)} />
+          <EmailSaveLabel htmlFor="EmailSave">
+          <EmailSaveDiv>이메일 저장하기</EmailSaveDiv>
+          </EmailSaveLabel>
           <FindLink
             onClick={() => {
               navigate("/register");

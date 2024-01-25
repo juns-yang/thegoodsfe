@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import Select, { components } from "react-select";
 import logo from "../../img/logo.svg";
+import { useNavigate } from "react-router-dom";
 
 const RegisterWrapper = styled.div`
   display: flex;
@@ -42,6 +43,7 @@ const EmailWrapper = styled.div`
 `;
 
 const RegisterMenu = () => {
+  const navigate = useNavigate();
   return (
     <RegisterWrapper>
       <LogoWrapper src={logo} />
@@ -118,6 +120,9 @@ const RegisterMenu = () => {
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
           style={RegisterImg}
+          onClick={() => {
+            navigate("/registerpage");
+          }}
         >
           <rect width="570" height="54" rx="5" fill="#F0C920" />
           <path
