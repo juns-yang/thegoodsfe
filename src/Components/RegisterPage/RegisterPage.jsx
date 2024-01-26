@@ -210,7 +210,7 @@ const AgreeLabel = styled.label`
   align-items: flex-start;
   user-select: none;
   padding: 0;
-  margin: 0 0 ${(e) => e.$interval / 19.2}vw 0;
+  margin: 0 0 ${(e) => (e.$interval ? e.$interval / 19.2 : 0)}vw 0; /* 기본값 설정 */
 
   &:before {
     content: "";
@@ -222,6 +222,7 @@ const AgreeLabel = styled.label`
     background-position: 50%;
     background-repeat: no-repeat;
     background-color: transparent;
+    transition: opacity 0.1s;
     /* Add the SVG checkmark as a background image */
     background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1 5.8L4.14286 9L12 1" stroke="%239C9C9C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>');
   }
@@ -238,6 +239,7 @@ const AgreeLabel = styled.label`
     background-position: 50%;
     background-repeat: no-repeat;
     background-color: #f0c920;
+    transition: opacity 0.1s;
     /* Add the SVG checkmark as a background image */
     background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1 5.8L4.14286 9L12 1" stroke="%23FFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>');
   }
@@ -251,10 +253,12 @@ const AgreeInput = styled.input`
   overflow: hidden;
   white-space: nowrap;
   width: 1px;
+  transition: opacity 1s ease; // 추가된 부분
 
   &:checked + ${AgreeLabel} {
     &:after {
       opacity: 1;
+      transition: opacity 0.1s;
     }
   }
 `;
@@ -283,6 +287,7 @@ const RegisterButton = styled.div`
 
 const RegisterPage = () => {
   const navigate = useNavigate();
+  const [DeActive, SetDeActive] = useState(false);
   const [Email, SetEmail] = useState("");
   const [ValidEmail, SetValidEmail] = useState(false);
   const [Password, SetPassword] = useState("");
@@ -297,9 +302,9 @@ const RegisterPage = () => {
   const [VerificationCell, SetVerificationCell] = useState("");
   const [ValidVerifcationCell, SetValidVerifcationCell] = useState(false);
   const [Gender, SetGender] = useState("");
-  const [BirthYear, setBirthYear] = useState("");
-  const [BirthMonth, setBirthMonth] = useState("");
-  const [BirthDay, setBirthDay] = useState("");
+  const [BirthYear, SetBirthYear] = useState("");
+  const [BirthMonth, SetBirthMonth] = useState("");
+  const [BirthDay, SetBirthDay] = useState("");
   const [ValidBirth, setValidBirth] = useState(false);
   const [AgreeAll, SetAgreeAll] = useState(false);
   const [AgreeAge, SetAgreeAge] = useState(false);
@@ -312,37 +317,31 @@ const RegisterPage = () => {
       /^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*.[a-zA-Z]{2,3}$/i,
     );
     SetValidEmail(pattern.test(Email));
-  }, [Email]);
+  }, [Email, DeActive]);
 
   useEffect(() => {
     var pattern = new RegExp(
       /^(?=.*[a-zA-Z])(?=.*[!@#$%^*+=-])(?=.*[0-9]).{8,15}$/,
     );
     SetValidPassword(pattern.test(Password));
-  }, [Password]);
+  }, [Password, DeActive]);
 
   useEffect(() => {
     SetValidPasswordCheck(Password === PasswordCheck);
-  }, [PasswordCheck, Password]);
+  }, [PasswordCheck, Password, DeActive]);
 
   useEffect(() => {
     SetValidNickname(!(Nickname === ""));
-  }, [Nickname]);
+  }, [Nickname, DeActive]);
 
   useEffect(() => {
-    SetValidCell(!(Cell === ""));
-  }, [Cell]);
+    var ValidCellPattern = new RegExp(/^(01[0,2][0-9]{8})$/);
+    SetValidCell(ValidCellPattern.test(Cell));
+  }, [Cell, DeActive]);
 
   useEffect(() => {
     SetValidVerifcationCell(VerificationCell === Cell);
-  }, [Cell, VerificationCell]);
-
-  useEffect(() => {
-    SetValidEmail(true);
-    SetValidPassword(true);
-    SetValidNickname(true);
-    SetValidCell(true);
-  }, []); // set bool variables to true when page init(mount)
+  }, [Cell, VerificationCell, DeActive]);
 
   useEffect(() => {
     SetAgreeAll(AgreeAge && AgreeTermsOfUse && AgreePrivacy && AgreeNewsLetter);
@@ -370,48 +369,51 @@ const RegisterPage = () => {
   }, [AgreeAll]);
 
   const EmailChange = (e) => {
-    SetEmail(e.target.value);
+    !DeActive && SetEmail(e.target.value);
   };
 
   const PasswordChange = (e) => {
-    SetPassword(e.target.value);
+    !DeActive && SetPassword(e.target.value);
   };
 
   const PasswordCheckChange = (e) => {
-    SetPasswordCheck(e.target.value);
+    !DeActive && SetPasswordCheck(e.target.value);
   };
 
   const NicknameChange = (e) => {
-    SetNickname(e.target.value);
+    !DeActive && SetNickname(e.target.value);
   };
 
   const CellChange = (e) => {
-    SetCell(e.target.value);
+    var CellPattern = new RegExp(/^([0-9]{0,11})$/);
+    if (!isNaN(e.target.value) && CellPattern.test(e.target.value)) {
+      !DeActive && SetCell(e.target.value);
+    }
   };
 
   const VerificationCellChange = (e) => {
-    SetVerificationCell(e.target.value);
+    !DeActive && SetVerificationCell(e.target.value);
   };
 
   const GenderChange = (e) => {
-    SetGender(e.target.id);
+    !DeActive && SetGender(e.target.id);
   };
 
   const handleBirthYearChange = (e) => {
     if (!isNaN(e.target.value)) {
-      setBirthYear(e.target.value);
+      !DeActive && SetBirthYear(e.target.value);
     }
   };
 
   const handleBirthMonthChange = (e) => {
     if (!isNaN(e.target.value) && e.target.value <= 12) {
-      setBirthMonth(e.target.value);
+      !DeActive && SetBirthMonth(e.target.value);
     }
   };
 
   const handleBirthDayChange = (e) => {
     if (!isNaN(e.target.value) && e.target.value <= 31) {
-      setBirthDay(e.target.value);
+      !DeActive && SetBirthDay(e.target.value);
     }
   };
 
@@ -425,6 +427,14 @@ const RegisterPage = () => {
         DayPattern.test(BirthDay),
     );
   }, [BirthYear, BirthMonth, BirthDay]);
+
+  useEffect(() => {
+    SetValidEmail(true);
+    SetValidPassword(true);
+    SetValidNickname(true);
+    SetValidCell(true);
+    setValidBirth(true);
+  }, []); // set bool variables to true when page init(mount)
 
   return (
     <RegisterWrapper>
@@ -461,11 +471,16 @@ const RegisterPage = () => {
             value={Email}
             key="id"
             placeholder="이메일을 입력해주세요."
-            className={ValidEmail ? "" : "invalidinput"}
+            className={!ValidEmail && "invalidinput"}
           ></InputWrapper>
           <DuplicateCheckButton>중복확인</DuplicateCheckButton>
         </div>
-        <WarningText>{ValidEmail ? "" : "이메일을 입력해 주세요."}</WarningText>
+        <WarningText>
+          {!ValidEmail &&
+            (Email.length === 0
+              ? "이메일을 입력해 주세요."
+              : "유효하지 않은 이메일입니다.")}
+        </WarningText>
         <InputTextWrapper>
           비밀번호
           <span style={{ color: "#F0C920", marginLeft: "0.26vw" }}>*</span>
@@ -477,9 +492,9 @@ const RegisterPage = () => {
           value={Password}
           key="password"
           placeholder="비밀번호 (영문+숫자+특수문자 8자 이상)"
-          className={ValidPassword ? "" : "invalidinput"}
+          className={!ValidPassword && "invalidinput"}
         ></InputWrapper>
-        {ValidPassword ? null : (
+        {!ValidPassword && (
           <WarningText>
             "영문, 숫자, 특수문자를 조합한 8자 이상, 20자 이하의 비밀번호를
             입력해주세요."
@@ -490,11 +505,12 @@ const RegisterPage = () => {
           type="password"
           onChange={PasswordCheckChange}
           key="passwordcheck"
+          value={PasswordCheck}
           placeholder="비밀번호 확인"
-          className={ValidPasswordCheck ? "" : "invalidinput"}
+          className={!ValidPasswordCheck && "invalidinput"}
         ></InputWrapper>
         <WarningText>
-          {ValidPasswordCheck ? "" : "비밀번호를 동일하게 입력해주세요."}
+          {!ValidPasswordCheck && "비밀번호를 동일하게 입력해주세요."}
         </WarningText>
         <InputTextWrapper>
           닉네임
@@ -506,24 +522,25 @@ const RegisterPage = () => {
             onChange={NicknameChange}
             key="nickname"
             placeholder="닉네임을 입력해주세요."
-            className={ValidNickname ? "" : "invalidinput"}
+            className={!ValidNickname && "invalidinput"}
+            value={Nickname}
           ></InputWrapper>
           <DuplicateCheckButton>중복확인</DuplicateCheckButton>
         </div>
-        <WarningText>
-          {ValidNickname ? "" : "닉네임을 입력해 주세요."}
-        </WarningText>
+        <WarningText>{!ValidNickname && "닉네임을 입력해 주세요."}</WarningText>
         <InputTextWrapper>
           전화번호
           <span style={{ color: "#F0C920", marginLeft: "0.26vw" }}>*</span>
         </InputTextWrapper>
         <div style={{ display: "flex", flexDirection: "row" }}>
           <InputWrapper
+            maxLength="11"
             $width={416}
             onChange={CellChange}
+            value={Cell}
             key="cell"
             placeholder="- 를 제외한 번호만 입력해주세요."
-            className={ValidCell ? "" : "invalidinput"}
+            className={!ValidCell && "invalidinput"}
           ></InputWrapper>
           <DuplicateCheckButton
             onClick={() => {
@@ -534,9 +551,9 @@ const RegisterPage = () => {
           </DuplicateCheckButton>
         </div>
         <WarningText>
-          {ValidCell ? "" : "정확한 휴대폰번호를 입력해 주세요."}
+          {!ValidCell && "정확한 휴대폰번호를 입력해 주세요."}
         </WarningText>
-        {DisplayVerificationCell ? (
+        {DisplayVerificationCell && (
           <div
             style={{
               display: "flex",
@@ -549,16 +566,17 @@ const RegisterPage = () => {
                 $width={416}
                 onChange={VerificationCellChange}
                 key="verificationcell"
+                value={VerificationCell}
                 placeholder="인증코드를 입력해주세요."
-                className={ValidVerifcationCell ? "" : "invalidinput"}
+                className={!ValidVerifcationCell && "invalidinput"}
               ></InputWrapper>
               <DuplicateCheckButton>확인</DuplicateCheckButton>
             </div>
             <WarningText>
-              {ValidVerifcationCell ? "" : "전화번호 인증이 필요합니다."}
+              {!ValidVerifcationCell && "전화번호 인증이 필요합니다."}
             </WarningText>
           </div>
-        ) : null}
+        )}
         <InputTextWrapper>
           성별
           <span style={{ color: "#F0C920", marginLeft: "0.26vw" }}>*</span>
@@ -566,29 +584,29 @@ const RegisterPage = () => {
         <GenderSelectionWrapper>
           <GenderSelectionInput
             type="radio"
-            id="male"
+            id="MALE"
             name="gender"
             onClick={GenderChange}
           />
-          <GenderSelectionLabel htmlFor="male">
+          <GenderSelectionLabel htmlFor="MALE">
             <GenderSelectionText>남자</GenderSelectionText>
           </GenderSelectionLabel>
           <GenderSelectionInput
             type="radio"
-            id="female"
+            id="FEMALE"
             name="gender"
             onClick={GenderChange}
           />
-          <GenderSelectionLabel htmlFor="female">
+          <GenderSelectionLabel htmlFor="FEMALE">
             <GenderSelectionText>여자</GenderSelectionText>
           </GenderSelectionLabel>
           <GenderSelectionInput
             type="radio"
-            id="noselect"
+            id="NO_SELECT"
             name="gender"
             onClick={GenderChange}
           />
-          <GenderSelectionLabel htmlFor="noselect">
+          <GenderSelectionLabel htmlFor="NO_SELECT">
             <GenderSelectionText>선택안함</GenderSelectionText>
           </GenderSelectionLabel>
         </GenderSelectionWrapper>
@@ -627,7 +645,7 @@ const RegisterPage = () => {
           />
           <BirthdayInputDivider />
         </BirthdayInputWrapper>
-        {ValidBirth ? null : <WarningText>invalid birthday</WarningText>}
+        {!ValidBirth && <WarningText>invalid birthday</WarningText>}
         <AgreeWrapper>
           <AgreeInput
             type="checkbox"
@@ -692,11 +710,7 @@ const RegisterPage = () => {
             </AgreeLabel>
           </AgreeDetailWrapper>
         </AgreeWrapper>
-        <RegisterButton
-          onClick={() => {
-            navigate("/register");
-          }}
-        >
+        <RegisterButton onClick={() => SetDeActive((DeActive) => !DeActive)}>
           회원가입
         </RegisterButton>
       </FormWrapper>
